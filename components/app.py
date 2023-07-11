@@ -47,15 +47,17 @@ class App:
                 self.subtract(command[1], command[2])
             case ("push"):
                 self.push(command[1], command[2])
+            case ("pull"):
+                self.pull(command[1], command[2])
             case ("percentages"):
                 self.percentages(command[1], command[2], command[3])
             case _:
                 raise KeyError("Invalid command")
         
     def _calculateBalances(self):
-        self.data["balanceNeeds"]   = self.data['income'] * self.data["percentNeeds"]
-        self.data["balanceWants"]   = self.data['income'] * self.data["percentWants"]
-        self.data["balanceSavings"] = self.data['income'] * self.data["percentSavings"]
+        self.data["balanceNeeds"]   = self.data["income"] * self.data["percentNeeds"]
+        self.data["balanceWants"]   = self.data["income"] * self.data["percentWants"]
+        self.data["balanceSavings"] = self.data["income"] * self.data["percentSavings"]
         
     def _addExpense(self, amount):
         self.data["totalExpenses"] += amount
@@ -86,18 +88,54 @@ class App:
             amount = self.data["balanceNeeds"]
         elif amount < 0:
             amount = 0
+            
+        self.data["balanceNeeds"] -= amount
+        self.data["nextNeeds"] += amount
     
     def _pushWants(self, amount):
         if amount > self.data["balanceWants"]:
             amount = self.data["balanceWants"]
         elif amount < 0:
             amount = 0
+            
+        self.data["balanceWants"] -= amount
+        self.data["nextWants"] += amount
     
     def _pushSavings(self, amount):
         if amount > self.data["balanceSavings"]:
             amount = self.data["balanceSavings"]
         elif amount < 0:
             amount = 0
+            
+        self.data["balanceSavings"] -= amount
+        self.data["nextSavings"] += amount
+            
+    def _pullNeeds(self, amount):
+        if amount > self.data["nextNeeds"]:
+            amount = self.data["nextNeeds"]
+        elif amount < 0:
+            amount = 0
+            
+        self.data["balanceSavings"] += amount
+        self.data["nextSavings"] -= amount
+    
+    def _pullWants(self, amount):
+        if amount > self.data["nextWants"]:
+            amount = self.data["nextWants"]
+        elif amount < 0:
+            amount = 0
+            
+        self.data["balanceSavings"] += amount
+        self.data["nextSavings"] -= amount
+    
+    def _pullSavings(self, amount):
+        if amount > self.data["nextSavings"]:
+            amount = self.data["nextSavings"]
+        elif amount < 0:
+            amount = 0
+            
+        self.data["balanceSavings"] += amount
+        self.data["nextSavings"] -= amount
         
     def _save(self):
         _dataString = json.dumps(self.data)
@@ -156,7 +194,7 @@ class App:
             return print("ERROR: Unknown group. Please use either 'income' or 'expense'.")
         
     def push(self, group:str, amount):
-        '''Pushes an amount to a certain passed group'''
+        '''Pushes an amount to a certain group'''
         # Check amount
         try:
             amount = float(amount)
@@ -170,6 +208,24 @@ class App:
             self._pushWants(amount)
         elif (group.lower() == "savings"):
             self._pushSavings(amount)
+        else:
+            return print("ERROR: Unknown group. Please use either 'needs', 'wants', or 'savings'.")
+        
+    def pull(self, group:str, amount):
+        '''Pulls an amount from a certain group'''
+        # Check amount
+        try:
+            amount = float(amount)
+        except ValueError:
+            return print("ERROR: argument 'amount' must be a float.")
+        
+        # Check group
+        if (group.lower() == "needs"):
+            self._pullNeeds(amount)
+        elif (group.lower() == "wants"):
+            self._pullWants(amount)
+        elif (group.lower() == "savings"):
+            self._pullSavings(amount)
         else:
             return print("ERROR: Unknown group. Please use either 'needs', 'wants', or 'savings'.")
         
