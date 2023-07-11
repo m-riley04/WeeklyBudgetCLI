@@ -1,6 +1,6 @@
 import json, os, datetime
 
-COMMANDS = ["add", "subtract", "push", "overview", "help", "percentages", "reset"]
+COMMANDS = ["add", "subtract", "push", "pull", "overview", "help", "percentages", "reset"]
 
 class App:
     def __init__(self):
