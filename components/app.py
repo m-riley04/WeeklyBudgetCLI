@@ -237,7 +237,7 @@ class App:
         except ValueError:
             return print("ERROR: arguments must be floats")
         
-        if (needs + wants + savings) != 1:
+        if (round(needs + wants + savings, 2)) != 1.0:
             print("ERROR: Percentages must equal 100")
         else:
             self.data["percentNeeds"] = needs
@@ -254,8 +254,14 @@ class App:
                 "balanceNeeds" : 0.0,
                 "balanceWants" : 0.0,
                 "balanceSavings" : 0.0,
+                "nextNeeds" : 0.0,
+                "nextWants" : 0.0,
+                "nextSavings" : 0.0,
                 "totalExpenses" : 0.0,
-                "totalIncome" : 0.0
+                "totalIncome" : 0.0,
+                "percentNeeds" : 0.5,
+                "percentWants" : 0.3,
+                "percentSavings" : 0.2
             }
             self._save()
             print("User data has been reset.")
